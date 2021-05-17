@@ -1,0 +1,15 @@
+---
+- name: copy files
+  copy:
+    src: {{ item }}
+    dest: "~/{{ item }}"
+  loop:
+    - file1.txt
+    - file2.txt
+
+- name: archive files
+  archive:
+    path: "~/"
+    dest: "~/home.tar.gz"
+    format: gz
+    force_archive: true

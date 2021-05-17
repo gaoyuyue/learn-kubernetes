@@ -88,7 +88,7 @@ resource "azurerm_linux_virtual_machine" "vm1" {
 
   admin_ssh_key {
     username   = "adminuser"
-    public_key = file("~/.ssh/id_rsa.pub")
+    public_key = file("../cert/id_rsa.pub")
   }
 
   os_disk {
@@ -133,7 +133,52 @@ resource "azurerm_linux_virtual_machine" "vm2" {
 
   admin_ssh_key {
     username   = "adminuser"
-    public_key = file("~/.ssh/id_rsa.pub")
+    public_key = file("../cert/id_rsa.pub")
+  }
+
+  os_disk {
+    caching              = "ReadWrite"
+    storage_account_type = "Standard_LRS"
+  }
+
+  source_image_reference {
+    publisher = "Canonical"
+    offer     = "UbuntuServer"
+    sku       = "16.04-LTS"
+    version   = "latest"
+  }
+}
+
+resource "azurerm_network_interface" "nic3" {
+  name                = "${random_uuid.example.result}-nic3"
+  location            = azurerm_resource_group.example.location
+  resource_group_name = azurerm_resource_group.example.name
+
+  ip_configuration {
+    name                          = "internal"
+    subnet_id                     = azurerm_subnet.example.id
+    private_ip_address_allocation = "Dynamic"
+  }
+}
+
+resource "azurerm_network_interface_security_group_association" "sga3" {
+  network_interface_id      = azurerm_network_interface.nic3.id
+  network_security_group_id = azurerm_network_security_group.example.id
+}
+
+resource "azurerm_linux_virtual_machine" "vm3" {
+  name                = "${random_uuid.example.result}-vm3"
+  resource_group_name = azurerm_resource_group.example.name
+  location            = azurerm_resource_group.example.location
+  size                = "Standard_F2"
+  admin_username      = "adminuser"
+  network_interface_ids = [
+    azurerm_network_interface.nic3.id,
+  ]
+
+  admin_ssh_key {
+    username   = "adminuser"
+    public_key = file("../cert/id_rsa.pub")
   }
 
   os_disk {
