@@ -1,5 +1,6 @@
-hosts: agents
-roles:
-  - test_archive
-tags:
-  - test_archive
+---
+- hosts: agents
+  roles:
+    - test_archive
+  tags:
+    - test_archive
